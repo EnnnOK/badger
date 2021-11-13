@@ -392,6 +392,7 @@ func (s *levelsController) levelTargets() targets {
 	for i := len(s.levels) - 1; i > 0; i-- {
 		ltarget := adjust(dbSize)
 		t.targetSz[i] = ltarget
+		// 当 dbSize 小于 baseLevelSize 的时候，为最后一层，否则为第0层
 		if t.baseLevel == 0 && ltarget <= s.kv.opt.BaseLevelSize {
 			t.baseLevel = i
 		}
@@ -432,6 +433,7 @@ func (s *levelsController) levelTargets() targets {
 	return t
 }
 
+// id 是 Compactor 的 id ，无其他意义
 func (s *levelsController) runCompactor(id int, lc *z.Closer) {
 	defer lc.Done()
 
@@ -884,6 +886,7 @@ func (s *levelsController) compactBuildTables(
 		}
 		return true
 	}
+	// valid tables 里面包含的不含有 dropPrefix 的 table
 	var valid []*table.Table
 	for _, table := range botTables {
 		if keepTable(table) {
@@ -891,6 +894,7 @@ func (s *levelsController) compactBuildTables(
 		}
 	}
 
+	// newIterator 中包含了 top bottom 的全部 table
 	newIterator := func() []y.Iterator {
 		// Create iterators across all the tables involved first.
 		var iters []y.Iterator
